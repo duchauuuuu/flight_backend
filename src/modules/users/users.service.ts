@@ -7,7 +7,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = new this.userModel(createUserDto);
@@ -15,17 +17,24 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find().select('-password').exec();
   }
 
   async findById(id: string): Promise<User> {
-    const user = await this.userModel.findById(id).exec();
+    const user = await this.userModel.findById(id).select('-password').exec();
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const updated = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
+    const updated = await this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .select('-password')
+      .exec();
     if (!updated) throw new NotFoundException('User not found');
     return updated;
   }
@@ -34,9 +43,5 @@ export class UsersService {
     const deleted = await this.userModel.findByIdAndDelete(id).exec();
     if (!deleted) throw new NotFoundException('User not found');
     return deleted;
-  }
-
-  async findByUsername(username: string): Promise<User | null> {
-    return this.userModel.findOne({ username }).exec();
   }
 }

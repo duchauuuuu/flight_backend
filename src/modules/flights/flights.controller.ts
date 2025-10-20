@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { FlightsService } from './flights.service';
 import { Flight } from './schemas/flight.schema';
 import { CreateFlightDto } from './dto/create-flight.dto';
@@ -13,6 +22,15 @@ export class FlightsController {
     return this.flightsService.create(createFlightDto);
   }
 
+  @Get('search')
+  search(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('airline') airline?: string,
+  ): Promise<Flight[]> {
+    return this.flightsService.searchFlights(from, to, airline);
+  }
+
   @Get()
   findAll(): Promise<Flight[]> {
     return this.flightsService.findAll();
@@ -24,7 +42,10 @@ export class FlightsController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateFlightDto: UpdateFlightDto): Promise<Flight> {
+  update(
+    @Param('id') id: string,
+    @Body() updateFlightDto: UpdateFlightDto,
+  ): Promise<Flight> {
     return this.flightsService.update(id, updateFlightDto);
   }
 

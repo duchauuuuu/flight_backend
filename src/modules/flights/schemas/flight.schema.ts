@@ -3,9 +3,12 @@ import { HydratedDocument } from 'mongoose';
 
 export type FlightDocument = HydratedDocument<Flight>;
 
-@Schema()
+@Schema({ timestamps: true, _id: false })
 export class Flight {
-  @Prop({ required: true })
+  @Prop({ type: String })
+  _id?: string;
+
+  @Prop({ required: true, unique: true })
   flightNumber: string;
 
   @Prop({ required: true })
@@ -15,13 +18,30 @@ export class Flight {
   to: string;
 
   @Prop({ required: true })
-  departureTime: Date;
+  departure: Date;
 
   @Prop({ required: true })
-  arrivalTime: Date;
+  arrival: Date;
 
   @Prop({ required: true })
   price: number;
+
+  @Prop({ required: true, default: 0 })
+  stops: number;
+
+  @Prop({ required: true })
+  airline: string;
+
+  @Prop({ type: [String], default: ['Economy','Premium Economy','Business','First'] })
+  availableCabins: string[];
+
+  @Prop({ type: Object, default: { Economy: 100, 'Premium Economy': 50, Business: 20, First: 10 } })
+  seatsAvailable: Record<string, number>; // theo cabin class
 }
 
 export const FlightSchema = SchemaFactory.createForClass(Flight);
+
+FlightSchema.pre('save', function (next) {
+  if (!this._id) this._id = new (require('mongoose').Types.ObjectId)().toString();
+  next();
+});

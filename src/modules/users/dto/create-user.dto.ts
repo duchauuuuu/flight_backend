@@ -1,17 +1,32 @@
-import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEmail,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
+  @IsOptional()
+  _id?: string;
+
+  @IsString()
   @IsNotEmpty()
-  username: string;
+  name: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
 
   @IsString()
   @IsNotEmpty()
   password: string;
 
-  @IsEmail()
-  email: string;
-
   @IsString()
-  role?: string; // không bắt buộc, mặc định là Customer
+  @IsOptional()
+  role?: string;
 }

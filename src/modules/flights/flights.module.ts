@@ -5,8 +5,11 @@ import { FlightsController } from './flights.controller';
 import { Flight, FlightSchema } from './schemas/flight.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Flight.name, schema: FlightSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Flight.name, schema: FlightSchema }]),
+  ],
   controllers: [FlightsController],
   providers: [FlightsService],
+  exports: [FlightsService],
 })
 export class FlightsModule {}

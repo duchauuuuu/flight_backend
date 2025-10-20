@@ -5,12 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { FlightsModule } from './modules/flights/flights.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 
 
 @Module({
   imports: [  ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGO_URI ||''),
-    FlightsModule,UsersModule,],
+    FlightsModule,UsersModule,BookingsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

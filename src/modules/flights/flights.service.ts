@@ -7,7 +7,9 @@ import { UpdateFlightDto } from './dto/update-flight.dto';
 
 @Injectable()
 export class FlightsService {
-  constructor(@InjectModel(Flight.name) private flightModel: Model<FlightDocument>) {}
+  constructor(
+    @InjectModel(Flight.name) private flightModel: Model<FlightDocument>,
+  ) {}
 
   async create(createFlightDto: CreateFlightDto): Promise<Flight> {
     const flight = new this.flightModel(createFlightDto);
@@ -15,7 +17,7 @@ export class FlightsService {
   }
 
   async findAll(): Promise<Flight[]> {
-    return this.flightModel.find().exec();
+    return this.flightModel.find().sort({ departure: 1 }).exec();
   }
 
   async findById(id: string): Promise<Flight> {
@@ -24,8 +26,34 @@ export class FlightsService {
     return flight;
   }
 
-  async update(id: string, updateFlightDto: UpdateFlightDto): Promise<Flight> {
-    const updated = await this.flightModel.findByIdAndUpdate(id, updateFlightDto, { new: true }).exec();
+  async findByRoute(from: string, to: string): Promise<Flight[]> {
+    return this.flightModel.find({ from, to }).sort({ departure: 1 }).exec();
+  }
+
+  async findByAirline(airline: string): Promise<Flight[]> {
+    return this.flightModel.find({ airline }).sort({ departure: 1 }).exec();
+  }
+
+  async searchFlights(
+    from?: string,
+    to?: string,
+    airline?: string,
+  ): Promise<Flight[]> {
+    const query: any = {};
+    if (from) query.from = from;
+    if (to) query.to = to;
+    if (airline) query.airline = airline;
+
+    return this.flightModel.find(query).sort({ departure: 1 }).exec();
+  }
+
+  async update(
+    id: string,
+    updateFlightDto: UpdateFlightDto,
+  ): Promise<Flight> {
+    const updated = await this.flightModel
+      .findByIdAndUpdate(id, updateFlightDto, { new: true })
+      .exec();
     if (!updated) throw new NotFoundException('Flight not found');
     return updated;
   }
