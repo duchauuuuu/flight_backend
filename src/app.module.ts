@@ -4,12 +4,13 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FlightsModule } from './modules/flights/flights.module';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './modules/users/users.module';
 
 
 @Module({
   imports: [  ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGO_URI ||''),
-    FlightsModule,],
+    FlightsModule,UsersModule,],
   controllers: [AppController],
   providers: [AppService],
 })
