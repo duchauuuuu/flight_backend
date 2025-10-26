@@ -6,12 +6,21 @@ import { FlightsModule } from './modules/flights/flights.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
-
+import { PaymentTransactionsModule } from './modules/payment-transactions/payment-transactions.module';
+import { CommentsModule } from './modules/comments/comments.module';
+import { AirportsModule } from './modules/airports/airports.module';
 
 @Module({
-  imports: [  ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.MONGO_URI ||''),
-    FlightsModule,UsersModule,BookingsModule,],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRoot(process.env.MONGO_URI || ''),
+    FlightsModule,
+    UsersModule,
+    BookingsModule,
+    PaymentTransactionsModule,
+    CommentsModule,
+    AirportsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
