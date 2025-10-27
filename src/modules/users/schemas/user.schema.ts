@@ -14,10 +14,10 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   phone: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   password: string;
 
   @Prop({ default: 'Customer' })
