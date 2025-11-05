@@ -27,6 +27,55 @@ export class AirportsController {
     return this.airportsService.search(keyword);
   }
 
+  // Mock data endpoint for FE without DB
+  @Get('mock')
+  mockList(): Airport[] {
+    return [
+      {
+        code: 'SGN',
+        name: 'Sân bay quốc tế Tân Sơn Nhất',
+        city: 'TP Hồ Chí Minh',
+        country: 'Việt Nam',
+      } as Airport,
+      {
+        code: 'HAN',
+        name: 'Sân bay quốc tế Nội Bài',
+        city: 'Hà Nội',
+        country: 'Việt Nam',
+      } as Airport,
+      {
+        code: 'DAD',
+        name: 'Sân bay quốc tế Đà Nẵng',
+        city: 'Đà Nẵng',
+        country: 'Việt Nam',
+      } as Airport,
+      {
+        code: 'CXR',
+        name: 'Sân bay quốc tế Cam Ranh',
+        city: 'Nha Trang',
+        country: 'Việt Nam',
+      } as Airport,
+      {
+        code: 'HPH',
+        name: 'Sân bay quốc tế Cát Bi',
+        city: 'Hải Phòng',
+        country: 'Việt Nam',
+      } as Airport,
+      {
+        code: 'VCA',
+        name: 'Sân bay quốc tế Cần Thơ',
+        city: 'Cần Thơ',
+        country: 'Việt Nam',
+      } as Airport,
+      {
+        code: 'DLI',
+        name: 'Sân bay Liên Khương',
+        city: 'Đà Lạt',
+        country: 'Việt Nam',
+      } as Airport,
+    ];
+  }
+
   @Get()
   findAll(
     @Query('city') city?: string,

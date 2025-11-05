@@ -62,6 +62,11 @@ export class BookingsController {
     return this.bookingsService.updateStatus(id, status);
   }
 
+  @Patch(':id/cancel')
+  cancel(@Param('id') id: string): Promise<Booking> {
+    return this.bookingsService.cancel(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string): Promise<Booking> {
     return this.bookingsService.delete(id);

@@ -13,7 +13,7 @@ export class PaymentTransaction {
   bookingId: string;
 
   @Prop({ required: true })
-  provider: string; // "SePay"
+  provider: string; // Payment provider
 
   @Prop({ required: true })
   amount: number;
@@ -37,10 +37,10 @@ export class PaymentTransaction {
   bankAccountName?: string; // tên người nhận tiền
 
   @Prop()
-  paidAt?: Date; // thời gian SePay xác nhận thanh toán
+  paidAt?: Date; // thời gian thanh toán được xác nhận
 
   @Prop({ type: Object })
-  webhookRawData?: Record<string, any>; // dữ liệu gốc SePay gửi về
+  webhookRawData?: Record<string, any>; // dữ liệu gốc từ payment provider
 }
 
 export const PaymentTransactionSchema = SchemaFactory.createForClass(

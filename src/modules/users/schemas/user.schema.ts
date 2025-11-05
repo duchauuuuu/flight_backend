@@ -20,6 +20,9 @@ export class User {
   @Prop({ default: '' })
   dob: string;
 
+  @Prop({ default: '' })
+  gender: string;
+
   @Prop({ default: '', select: false })
   password: string;
 

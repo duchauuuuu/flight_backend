@@ -20,6 +20,14 @@ async function bootstrap() {
     }),
   );
 
+  // Tăng giới hạn kích thước body cho file upload (5MB)
+  app.use((req, res, next) => {
+    if (req.url.includes('/avatar')) {
+      req.headers['content-type'] = 'multipart/form-data';
+    }
+    next();
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

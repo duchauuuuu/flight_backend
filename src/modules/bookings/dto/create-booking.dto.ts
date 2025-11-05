@@ -31,31 +31,7 @@ export class TravellerDto {
 
   @IsString()
   @IsNotEmpty()
-  firstName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  lastName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  gender: string;
-
-  @IsString()
-  @IsOptional()
-  seat?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  cabinClass: string;
-
-  @IsString()
-  @IsOptional()
-  cabinBags?: string;
-
-  @IsString()
-  @IsOptional()
-  checkedBags?: string;
+  name: string;
 }
 
 export class ContactDetailsDto {
@@ -86,6 +62,10 @@ export class CreateBookingDto {
   @IsString()
   @IsOptional()
   _id?: string;
+
+  @IsString()
+  @IsOptional()
+  bookingCode?: string; // BE sẽ tự sinh nếu không truyền
 
   @IsString()
   @IsNotEmpty()

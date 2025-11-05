@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type BookingDocument = HydratedDocument<Booking>;
 
@@ -9,25 +9,7 @@ export class Traveller {
   type: string; // Adult, Child, Infant
 
   @Prop({ required: true })
-  firstName: string;
-
-  @Prop({ required: true })
-  lastName: string;
-
-  @Prop({ required: true })
-  gender: string;
-
-  @Prop({ required: true })
-  seat?: string;
-
-  @Prop({ required: true })
-  cabinClass: string;
-
-  @Prop({ required: true })
-  cabinBags?: string;
-
-  @Prop({ required: true })
-  checkedBags?: string;
+  name: string;
 }
 
 const TravellerSchema = SchemaFactory.createForClass(Traveller);
@@ -62,6 +44,9 @@ export class Booking {
   @Prop({ type: String })
   _id?: string;
 
+  @Prop({ required: true, unique: true, default: () => generatePNR() })
+  bookingCode: string; // PNR/Mã đặt chỗ chính thức
+
   @Prop({ type: String, ref: 'User', required: true })
   userId: string;
 
@@ -93,6 +78,17 @@ export class Booking {
 export const BookingSchema = SchemaFactory.createForClass(Booking);
 
 BookingSchema.pre('save', function (next) {
-  if (!this._id) this._id = new (require('mongoose').Types.ObjectId)().toString();
+  if (!this._id) {
+    this._id = new Types.ObjectId().toString();
+  }
   next();
 });
+
+function generatePNR(length = 6): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = '';
+  for (let i = 0; i < length; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}

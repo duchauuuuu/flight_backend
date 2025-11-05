@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -11,6 +11,17 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    // Đảm bảo field name luôn có giá trị
+    if (!createUserDto.name || createUserDto.name.trim() === '') {
+      throw new BadRequestException('Tên không được để trống');
+    }
+
+    // Kiểm tra email đã tồn tại chưa
+    const existingUser = await this.findByEmail(createUserDto.email.trim());
+    if (existingUser) {
+      throw new BadRequestException('Email đã được sử dụng');
+    }
+
     // Hash password nếu có
     if (
       createUserDto.password &&
@@ -22,8 +33,28 @@ export class UsersService {
         saltRounds,
       );
     }
-    const user = new this.userModel(createUserDto);
-    return user.save();
+    
+    // Đảm bảo tất cả required fields được lưu
+    // Giữ nguyên email như người dùng nhập (phân biệt hoa thường)
+    const userData = {
+      name: createUserDto.name.trim(),
+      email: createUserDto.email.trim(),
+      password: createUserDto.password,
+      phone: createUserDto.phone || '',
+      points: createUserDto.points || 0,
+      role: createUserDto.role || 'Customer',
+    };
+    
+    try {
+      const user = new this.userModel(userData);
+      return await user.save();
+    } catch (error: any) {
+      if (error.code === 11000) {
+        // Duplicate key error (email already exists)
+        throw new BadRequestException('Email đã được sử dụng');
+      }
+      throw error;
+    }
   }
 
   async findAll(): Promise<User[]> {
@@ -37,11 +68,32 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).exec();
+    // Tìm kiếm email phân biệt hoa thường (chỉ trim whitespace)
+    return this.userModel.findOne({ email: email.trim() }).exec();
   }
 
   async findByEmailWithPassword(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).select('+password').lean().exec();
+    // Tìm kiếm email phân biệt hoa thường (chỉ trim whitespace)
+    const trimmedEmail = email.trim();
+    console.log('🔎 Searching for user with email:', trimmedEmail);
+    console.log('🔎 Email length:', trimmedEmail.length);
+    console.log('🔎 Email characters:', JSON.stringify(trimmedEmail));
+    
+    const user = await this.userModel.findOne({ email: trimmedEmail }).select('+password').exec();
+    
+    if (user) {
+      console.log('🔎 User found in DB:');
+      console.log('🔎 DB email:', user.email);
+      console.log('🔎 DB email length:', user.email?.length);
+      console.log('🔎 Email exact match:', user.email === trimmedEmail);
+    } else {
+      console.log('🔎 No user found with email:', trimmedEmail);
+      // Thử tìm tất cả users để debug
+      const allUsers = await this.userModel.find().select('email').limit(5).exec();
+      console.log('🔎 Sample users in DB:', allUsers.map(u => ({ email: u.email, emailLength: u.email?.length })));
+    }
+    
+    return user;
   }
 
   async updateRefreshToken(id: string, refreshToken: string): Promise<void> {

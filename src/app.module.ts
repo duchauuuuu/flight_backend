@@ -11,6 +11,8 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { AirportsModule } from './modules/airports/airports.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { SeedModule } from './modules/seed/seed.module';
+import { SearchHistoryModule } from './modules/search-history/search-history.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { AuthModule } from './modules/auth/auth.module';
     CommentsModule,
     AirportsModule,
     NotificationsModule,
+    SeedModule,
+    SearchHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
