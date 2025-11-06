@@ -291,12 +291,15 @@ export class SeedService {
     ];
 
     let flightNumberCounter = 1;
+    const MAX_FLIGHTS = 100; // Giới hạn tổng số chuyến bay là 70
 
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 30 && flightsData.length < MAX_FLIGHTS; day++) {
       const currentDate = new Date(today);
       currentDate.setDate(today.getDate() + day);
 
       for (const route of routes) {
+        if (flightsData.length >= MAX_FLIGHTS) break;
+
         const fromAirport = airports.find((a) => a.code === route.from);
         const toAirport = airports.find((a) => a.code === route.to);
 
@@ -305,7 +308,7 @@ export class SeedService {
         // Tạo 2-4 chuyến bay mỗi route mỗi ngày
         const flightsPerRoute = Math.floor(Math.random() * 3) + 2;
 
-        for (let i = 0; i < flightsPerRoute; i++) {
+        for (let i = 0; i < flightsPerRoute && flightsData.length < MAX_FLIGHTS; i++) {
           const airline = airlines[Math.floor(Math.random() * airlines.length)];
           const departureHour = Math.floor(Math.random() * 20) + 6; // 6h-2h sáng hôm sau
           const departureMinute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, 45
@@ -326,10 +329,12 @@ export class SeedService {
           const arrival = new Date(departure);
           arrival.setHours(arrival.getHours() + flightDuration);
 
-          // Giá từ 800k - 5 triệu
+          // Giá từ 800k - 5 triệu (làm tròn đến hàng trăm nghìn)
           const basePrice = 800000;
           const priceVariation = Math.random() * 4200000;
-          const price = Math.floor(basePrice + priceVariation);
+          const rawPrice = basePrice + priceVariation;
+          // Làm tròn đến hàng trăm nghìn (100,000)
+          const price = Math.round(rawPrice / 100000) * 100000;
 
           const cabinClasses = [
             'Economy',
@@ -369,7 +374,7 @@ export class SeedService {
       to: f.to,
       departure: f.departure,
       arrival: f.arrival,
-      price: f.price,
+      price: Number(Math.floor(f.price)), // Đảm bảo giá là số nguyên
       stops: f.stops,
       airline: f.airline,
       availableCabins: f.availableCabins,

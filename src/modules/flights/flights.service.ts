@@ -114,18 +114,8 @@ export class FlightsService {
             $gte: startOfDay,
             $lte: endOfDay,
           };
-
-          console.log('🔍 Filtering by date:', {
-            input: date,
-            parsed: searchDate.toISOString(),
-            startOfDay: startOfDay.toISOString(),
-            endOfDay: endOfDay.toISOString(),
-          });
-        } else {
-          console.warn('⚠️ Invalid date format:', date);
         }
       } catch (error) {
-        console.error('❌ Error parsing date:', error, 'Input:', date);
         // If date parsing fails, don't filter by date
       }
     }
@@ -176,21 +166,11 @@ export class FlightsService {
     cabinClass?: string,
     passengers?: number,
   ): Promise<Flight[][]> {
-    console.log('🟣 [MULTICITY SEARCH] Starting multicity flight search');
-    console.log('🟣 [MULTICITY SEARCH] Segments:', JSON.stringify(segments, null, 2));
-    console.log('🟣 [MULTICITY SEARCH] Cabin class:', cabinClass);
-    console.log('🟣 [MULTICITY SEARCH] Passengers:', passengers);
-
     // Tìm kiếm cho từng segment
     const results: Flight[][] = [];
 
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
-      console.log(`🟣 [MULTICITY SEARCH] Searching segment ${i + 1}/${segments.length}:`, {
-        from: segment.from,
-        to: segment.to,
-        date: segment.date,
-      });
 
       const segmentFlights = await this.searchFlights(
         segment.from,
@@ -201,12 +181,8 @@ export class FlightsService {
         passengers,
       );
 
-      console.log(`🟣 [MULTICITY SEARCH] Segment ${i + 1} found ${segmentFlights.length} flights`);
       results.push(segmentFlights);
     }
-
-    console.log('🟣 [MULTICITY SEARCH] Completed. Total segments:', results.length);
-    console.log('🟣 [MULTICITY SEARCH] Results:', results.map((r, i) => `Segment ${i + 1}: ${r.length} flights`).join(', '));
 
     return results;
   }

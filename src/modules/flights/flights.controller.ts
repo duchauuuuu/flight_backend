@@ -39,8 +39,6 @@ export class FlightsController {
   searchMulticity(
     @Body() body: { segments: Array<{ from: string; to: string; date: string }>; cabinClass?: string; passengers?: number },
   ): Promise<Flight[][]> {
-    console.log('🟣 [MULTICITY CONTROLLER] Received multicity search request');
-    console.log('🟣 [MULTICITY CONTROLLER] Body:', JSON.stringify(body, null, 2));
     return this.flightsService.searchMulticityFlights(body.segments, body.cabinClass, body.passengers);
   }
 

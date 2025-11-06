@@ -43,14 +43,6 @@ export class BookingsService {
     const booking = new this.bookingModel(createBookingDto);
     const savedBooking = await booking.save();
 
-    console.log('📝 [BOOKING] Booking created:', {
-      _id: savedBooking._id,
-      bookingCode: savedBooking.bookingCode,
-      userId: savedBooking.userId,
-      payment: savedBooking.payment,
-      paymentAmount: savedBooking.payment?.amount,
-    });
-
     // Tạo notification khi booking được tạo thành công
     try {
       const flightCount = Array.isArray(savedBooking.flightIds)
@@ -142,12 +134,6 @@ export class BookingsService {
       const bookingAmount = savedBooking.payment?.amount || 0;
       const pointsToAdd = Math.floor(bookingAmount / 10000);
 
-      console.log('💰 [BOOKING] Points calculation:', {
-        bookingAmount,
-        pointsToAdd,
-        payment: savedBooking.payment,
-      });
-
       if (pointsToAdd > 0) {
         try {
           // Lấy user hiện tại để kiểm tra điểm trước khi tăng
@@ -156,13 +142,6 @@ export class BookingsService {
           );
           const currentPoints = currentUser?.points || 0;
           const oldTier = this.usersService.getMembershipTier(currentPoints);
-
-          console.log('💰 [BOOKING] Before adding points:', {
-            userId: savedBooking.userId,
-            currentPoints,
-            oldTier,
-            pointsToAdd,
-          });
 
           // Tăng điểm
           await this.usersService.addPoints(savedBooking.userId, pointsToAdd);
@@ -174,15 +153,8 @@ export class BookingsService {
           const newPoints = updatedUser?.points || 0;
           const newTier = this.usersService.getMembershipTier(newPoints);
 
-          console.log('💰 [BOOKING] After adding points:', {
-            newPoints,
-            newTier,
-            tierChanged: oldTier !== newTier,
-          });
-
           // Nếu hạng thành viên thay đổi, tạo notification về việc tăng hạng
           if (oldTier !== newTier) {
-            console.log('🎉 [BOOKING] Creating tier upgrade notification');
             await this.notificationsService.create({
               userId: savedBooking.userId,
               title: `Chúc mừng! Bạn đã lên hạng ${newTier}`,
@@ -193,10 +165,6 @@ export class BookingsService {
           }
 
           // Tạo notification về điểm được tặng
-          console.log('💰 [BOOKING] Creating points notification:', {
-            pointsToAdd,
-            newPoints,
-          });
           await this.notificationsService.create({
             userId: savedBooking.userId,
             title: `Bạn được cộng ${pointsToAdd} điểm`,
@@ -204,20 +172,11 @@ export class BookingsService {
             type: 'promotion',
             isRead: false,
           });
-          console.log('✅ [BOOKING] Points notification created successfully');
         } catch (error) {
-          console.error('❌ [BOOKING] Error adding points for booking:', error);
           // Không throw error để không ảnh hưởng đến booking creation
         }
-      } else {
-        console.log('⚠️ [BOOKING] No points to add:', {
-          bookingAmount,
-          pointsToAdd,
-          payment: savedBooking.payment,
-        });
       }
     } catch (error) {
-      console.error('Error creating notification for booking:', error);
       // Không throw error để không ảnh hưởng đến booking creation
     }
 
@@ -260,13 +219,6 @@ export class BookingsService {
       })
       .exec();
 
-    // Debug: Log first booking to check populate
-    if (list.length > 0) {
-      console.log(
-        'First booking after populate:',
-        JSON.stringify(list[0], null, 2),
-      );
-    }
 
     return list;
   }

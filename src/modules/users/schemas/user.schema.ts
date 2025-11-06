@@ -34,6 +34,9 @@ export class User {
 
   @Prop({ default: 'Customer' })
   role?: string;
+
+  @Prop({ default: 'active', enum: ['active', 'deleted'] })
+  status?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

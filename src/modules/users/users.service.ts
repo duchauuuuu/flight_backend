@@ -43,6 +43,7 @@ export class UsersService {
       phone: createUserDto.phone || '',
       points: createUserDto.points || 0,
       role: createUserDto.role || 'Customer',
+      status: 'active',
     };
     
     try {
@@ -58,40 +59,27 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find().select('-password').exec();
+    return this.userModel.find({ status: 'active' }).select('-password').exec();
   }
 
   async findById(id: string): Promise<User> {
-    const user = await this.userModel.findById(id).select('-password').exec();
+    const user = await this.userModel.findOne({ _id: id, status: 'active' }).select('-password').exec();
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
     // Tìm kiếm email phân biệt hoa thường (chỉ trim whitespace)
-    return this.userModel.findOne({ email: email.trim() }).exec();
+    // Chỉ tìm users có status = 'active'
+    return this.userModel.findOne({ email: email.trim(), status: 'active' }).exec();
   }
 
   async findByEmailWithPassword(email: string): Promise<User | null> {
     // Tìm kiếm email phân biệt hoa thường (chỉ trim whitespace)
+    // Chỉ tìm users có status = 'active'
     const trimmedEmail = email.trim();
-    console.log('🔎 Searching for user with email:', trimmedEmail);
-    console.log('🔎 Email length:', trimmedEmail.length);
-    console.log('🔎 Email characters:', JSON.stringify(trimmedEmail));
     
-    const user = await this.userModel.findOne({ email: trimmedEmail }).select('+password').exec();
-    
-    if (user) {
-      console.log('🔎 User found in DB:');
-      console.log('🔎 DB email:', user.email);
-      console.log('🔎 DB email length:', user.email?.length);
-      console.log('🔎 Email exact match:', user.email === trimmedEmail);
-    } else {
-      console.log('🔎 No user found with email:', trimmedEmail);
-      // Thử tìm tất cả users để debug
-      const allUsers = await this.userModel.find().select('email').limit(5).exec();
-      console.log('🔎 Sample users in DB:', allUsers.map(u => ({ email: u.email, emailLength: u.email?.length })));
-    }
+    const user = await this.userModel.findOne({ email: trimmedEmail, status: 'active' }).select('+password').exec();
     
     return user;
   }
@@ -101,7 +89,8 @@ export class UsersService {
   }
 
   async findByRefreshToken(refreshToken: string): Promise<User | null> {
-    return this.userModel.findOne({ refreshToken }).exec();
+    // Chỉ tìm users có status = 'active'
+    return this.userModel.findOne({ refreshToken, status: 'active' }).exec();
   }
 
   getMembershipTier(points: number): string {
@@ -134,7 +123,15 @@ export class UsersService {
   }
 
   async delete(id: string): Promise<User> {
-    const deleted = await this.userModel.findByIdAndDelete(id).exec();
+    // Soft delete: cập nhật status thành 'deleted' thay vì xóa cứng
+    const user = await this.userModel.findOne({ _id: id, status: 'active' }).exec();
+    if (!user) throw new NotFoundException('User not found');
+
+    const deleted = await this.userModel
+      .findByIdAndUpdate(id, { status: 'deleted' }, { new: true })
+      .select('-password')
+      .exec();
+
     if (!deleted) throw new NotFoundException('User not found');
     return deleted;
   }
